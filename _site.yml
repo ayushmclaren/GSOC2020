@@ -1,8 +1,7 @@
-name: "Gsoc_proposal"
+name: "GSOC 2020 Proposal, Ayush Agarwal"
 navbar:
-  title: "Gsoc_proposal"
+  title: "GSOC 2020 Proposal, Ayush Agarwal"
   left:
     - text: "Home"
       href: index.html
-    - text: "About"
-      href: about.html
+  

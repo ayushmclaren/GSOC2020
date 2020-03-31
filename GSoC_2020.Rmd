@@ -1,6 +1,11 @@
 ---
 title: "Google Summer of Code 2020, Ayush Agarwal" 
 author: "QBLD - Quantile Regression for Binary Longitudinal Data"
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 output:
   prettydoc::html_pretty:
     keep_md: True
@@ -13,7 +18,7 @@ output:
 ***
 ### Project Title       : QBLD: Quantile Regression for Binary Longitudinal Data
 ### Project short title : QBLD
-### Project url         : xxxxx
+### Project url         : https://github.com/rstats-gsoc/gsoc2020/wiki/QBLD---Quantile-Regression-for-Binary-Longitudinal-Data
 
 ## About Me
 ***
@@ -73,9 +78,9 @@ Mentor :- Prof. Amit Mitra
 
 ## Mentors
 ***
-**Evaluating mentor** : Prof. Dootika Vats (dootika@iitk.ac.in)
+**Evaluating mentor** : Prof. Dootika Vats(dootika@iitk.ac.in) - MCMC Expert
 
-**Co-mentor** : Prof. Adam Maidman ()
+**Co-mentor** : Dr. Adam Maidman (abmaidman@gmail.com) - Quantile Regression Expert
 
 
 ## Background
@@ -108,7 +113,7 @@ The appropriate priors are chosen and a blocked Gibbs sampler is implemented as 
 
 Quantile regression has been implemented in binary data models (Benoit & Poel, 2012; Kordas, 2006), ordered data models (Alhamzawi & Ali, 2018; Rahman, 2016), count data models (Machado & Silva, 2005), and censored data models (Harding & Lamarche, 2012; Portnoy, 2003). The latter of these papers discusses the issues associated with solely focusing on fixed effects estimators and highlights the usefulness of allowing for a flexible specification of individual heterogeneity associated with covariates, also of interest in this framework.
 
-To the best of my knowledge, several quantile regression packages already exist namely, `quantreg`, `BayesQR`, `MCMCpack`, `bqror`. However, these packages are either based on freuqentist frameworks or incapable of handling mixed effects BLD. `BayesQR` can handle a BLD framework, albeit using a Metropolis-within-Gibbs sampler and can only account for random effects. The proposed package aims to complement the existing packages and widen the scope of quantile regression framework to heterogenous binary longitudinal data. Similarly `brq` package implements the idea of Bayesian adaptive Lasso quantile regression.
+To the best of my knowledge, several quantile regression packages already exist namely, `quantreg`, `BayesQR`, `MCMCpack`, `bqror`, `rqPen`. However, these packages are either based on frequentist frameworks or incapable of handling mixed effects BLD. `BayesQR` can handle a BLD framework, albeit using a Metropolis-within-Gibbs sampler and can only account for random effects. The proposed package aims to complement the existing packages and widen the scope of quantile regression framework to heterogenous binary longitudinal data. Similarly `brq` package implements the idea of Bayesian adaptive Lasso quantile regression.
 
 In a recent Bayesian paper, Luo, Lian, and Tian (2012) develop a hierarchical model to estimate the parameters of conditional quantile functions with random effects. The authors do so by adopting an asymmetric Laplace (AL) distribution for the residual errors and suitable prior distributions for the parameters. Sampler for AL distribution is implemented in the `ald` package.
 
@@ -161,10 +166,9 @@ dALD <- function(y,p) #gives the density
 
 ### The Gibbs Sampler
 
-Following the master literature, I will implement a blocked Gibbs sampler for the QBLD framework which can handle heterogenity in both common (fixed) and individual-specific(random) parameters. The Blocking procedure is essential for efficiency and reducing computational load. This blocked approach also significantly improves the mixing properties of the Markov chain. The success of these blocking techniques can be found in J.S. Liu (1994), Chib and Carlin (1999),
-and Chib and Jeliazkov (2006). The functions to sample from the conditional distributions will be set up generically for a wide scope usage outside the model.
+Following the master literature, I will implement a blocked Gibbs sampler for the QBLD framework which can handle heterogenity in both common (fixed) and individual-specific(random) parameters. The Blocking procedure is essential for efficiency and reducing computational load. This blocked approach also significantly improves the mixing properties of the Markov chain. The success of these blocking techniques can be found in J.S. Liu (1994), Chib and Carlin (1999), and Chib and Jeliazkov (2006). The functions to sample from the conditional distributions will be set up generically for a wide scope usage outside the model.
 
-To improve the speed of the routine, the Markov Chain Monte Carlo (MCMC) part of the algorithm will be programmed in RCpp and be called from within the function in R.
+To improve the speed of the routine, the Markov Chain Monte Carlo (MCMC) part of the algorithm will be programmed in Rcpp and be called from within the function in R.
 
 I have also identified and plan to solve the following additional roadblocks - 
 
@@ -174,7 +178,7 @@ Since this is a panel data setting, Longitudinal data models often involve a mod
 
 **Transposing and Inverting high-dimensional matrices** -
 
-Since the sampler involves calculation and storage of transpose and inverse of large size matrices at repeated intermediate steps, I will offload these functions to RCpp for faster implementation. Cpp is also known to be better at handling the machine tolerance issues than R.
+Since the sampler involves calculation and storage of transpose and inverse of large size matrices at repeated intermediate steps, I will offload these functions to Rcpp for faster implementation. Cpp is also known to be better at handling the machine tolerance issues than R.
 Methods to avoid this issue also includes alternative algorithms for sampling from a Multivariate Normal and Using a Non-blocked sampler decribed later.
 
 **Penalization and priors on $\beta$ ** -
@@ -246,7 +250,7 @@ I will also try to improve efficiency of the GIG sampler, using the method descr
 
 ### Covariate Effects and Model Comparison
 
-Covariate effects are a key consideration in model evaluation, forecasting, and policy analysis, yet their dependence on estimation uncertainty has been largely overlooked in previous work. Jeliazkov and Vossmeyer (2016) explores the evidence that reveals that failing to consider estimation variability and relying solely on parameter point estimates may lead to nontrivial biases in covariate effects that can be exacerbated in certain settings, underscoring the pivotal role that estimation uncertainty can play in this context.
+Covariate effects are a key consideration in model evaluation, forecasting, and policy analysis, yet their dependence on estimation uncertainty has been largely overlooked in previous work. Jeliazkov and Vossmeyer (2018) explores the evidence that reveals that failing to consider estimation variability and relying solely on parameter point estimates may lead to nontrivial biases in covariate effects that can be exacerbated in certain settings, underscoring the pivotal role that estimation uncertainty can play in this context.
 
 I will implement the method described in the said paper genrically for use outside the QBLD framework, this will be used in the final `summary` table output for the Gibbs output. The probabilities are computed from the AL cdf, allowing for straightforward interpretations of the covariate effects. Implemented in the `dALD` function I mentioned about earlier. 
 
@@ -339,7 +343,7 @@ information about the estimation procedure, such as the quantile, the variable n
 I plan to make the visualizations in the package compatible with `ggplot` to allow for elegant and sophisticated *acf* and time series plots for the Markov chains. I also plan on making the function output objects compatible with base package tools such as `plot` and `summary` to reduce package dependencies and provide a more useful user experience.
 
 
-## Timeline (update in the morning)
+## Timeline 
 ***
 
 ```{r, echo = FALSE}
@@ -390,3 +394,61 @@ kable(table) %>%
 ***
 As proposed in my coding plan, I will use `testthat` for user and code testing. Using `testthat` will also ensure code submission. I have specifically allocated time slots in my timeline for testing.  
 I will make multiple minor commits adhering to each new functionality that I add. The minor commits will be followed by a major commit every week, which concludes the successful completion of the task allocated to that week. The minor commits will be helpful for the mentors to track my progress over a week and will dictate the schedule of meetings. My major commits will track my workflow over the entire GSoC period. Missing out on major commits for two continuous week would indicate a problem.  
+
+## References
+
+* Rahman, Mohammad & Vossmeyer, Angela. (2019). Estimation and Applications of Quantile Regression for Binary Longitudinal Data. Advances in Econometrics. 40. 
+* Albert, J., & Chib, S. (1993). Bayesian analysis of binary and polychotomous response data. Journal of the American Statistical Association, 88(422), 669-679.
+* Benoit, D. F., & Poel, D. V. D. (2012). Binary quantile regression: A Bayesian approach based on the asymmetric Laplace distribution. Journal of Applied Econometrics, 27(7), 1174-1188.
+
+* Kordas, G. (2006). Smoothed binary regression quantiles. Journal of Applied Econometrics, 21(3), 387-407.
+
+* Alhamzawi, R., & Ali, H. T. M. (2018). Bayesian quantile regression for ordinal longitudinal data. Journal of Applied Statistics, 45(5), 815-828.
+
+* Rahman, M. A. (2016). Bayesian quantile regression for ordinal models. Bayesian Analysis, 11(1),
+1-24.
+
+* Machado, J., & Silva, J. S. (2005). Quantiles for counts. Journal of the American Statistical
+Association, 100(472), 1226-1237.
+
+* Luo, Y., Lian, H., & Tian, M. (2012). Bayesian quantile regression for longitudinal data models.
+Journal of Statistical Computation and Simulation, 82(11), 1635-1649.
+
+* Koenker, R., & Machado, J. A. F. (1999). Goodness of fit and related inference processes for quantile regression. Journal of the American Statistical Association, 94(448), 1296-1310.
+
+* Liu, J. S. (1994). The collapsed Gibbs sampler in Bayesian computations with applications to a gene regulation problem. Journal of the American Statistical Association, 89(427), 958-966.
+
+* Chib, S., & Carlin, B. P. (1999). On MCMC sampling in hierarchical longitudinal models. Statistics
+and Computing, 9(1), 17-26.
+
+* Chib, S., & Jeliazkov, I. (2006). Inference in semiparametric dynamic models for binary longitudinal
+data. Journal of the American Statistical Association, 101(474), 685-700.
+
+* Bhattacharya A, Chakraborty A, Mallick BK. Fast sampling with Gaussian scale-mixture priors in high-dimensional regression. Biometrika. 2016;103(4):985–991.
+
+* François Orieux, Olivier Féron, Jean-François Giovannelli. Sampling high-dimensional Gaussian distributions for general linear inverse problems. IEEE Signal Processing Letters, Institute of Electrical
+and Electronics Engineers, 2012, 19 (5), pp.251.
+
+* Pakman, Ari & Paninski, Liam. (2012). Exact Hamiltonian Monte Carlo for Truncated Multivariate Gaussians. Journal of Computational and Graphical Statistics.
+
+* Botev, Z.I. (2017). The normal law under linear restrictions: simulation and estimation via minimax tilting.
+
+* Cong, Yulai; Chen, Bo; Zhou, Mingyuan. Fast Simulation of Hyperplane-Truncated Multivariate Normal Distributions. Bayesian Anal. 12 (2017), no. 4, 1017--1037.
+
+* Wolfgang Hörmann and Josef Leydold (2013). Generating generalized inverse Gaussian random
+variates, Statistics and Computing.
+
+* Jeliazkov, I., & Vossmeyer, A. (2018). The impact of estimation uncertainty on covariate effects in
+nonlinear models. Statistical Papers, 59(3), 1031-1042.
+
+* Greven, S., & Kneib, T. (2010). On the behaviour of marginal and conditional AIC in linear mixed models. Biometrika, 97(4), 773-789.
+
+* Delattre, M., Lavielle, M., & Poursat, M.-A. (2014). A note on BIC in mixed-effects models.
+Electronic Journal of Statistics, 8(1), 456-475.
+
+* Greenberg, E. (2012). Introduction to Bayesian econometrics. New York, NY: Cambridge University Press.
+
+* Koop, G., Poirier, D., & Tobias, J. (2007). Bayesian econometric methods. New York, NY: Cambridge University Press
+
+
+
